@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  	<base target="_blank" />
     <!--Open Source Font Awesome Icons-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"/>
     <title>Agents by State</title>
+
    </head>
 <body>
   
@@ -470,7 +472,9 @@
         <button class="close-btn">
             <i class="fas fa-times"></i>
         </button>
-
+		<button class="more-agents-arrow">
+            <i class="fas fa-arrow-down"></i>
+        </button>
     </div>
 </div>
 
@@ -481,7 +485,6 @@
 body {
     font-family: 'Inter', system-ui, -apple-system, sans-serif; /* Modern typeface */
     color: #afeafc;
-    background-color: ##afeafc ;
     overflow: hidden;
 }
 
@@ -507,6 +510,16 @@ body {
 ::-webkit-scrollbar-thumb:hover {
     background: #475569;
 }
+  
+a, a:visited{
+	color: rgba(255,255,255,0.8);
+  	text-decoration: underline;
+}
+
+a:hover{
+	color: rgba(255,255,255,0.7);
+  	text-decoration: none;
+}
 
 .US-map {
     position: absolute;
@@ -514,7 +527,6 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle at center, #ffffff 0%, #afeafc 90%);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -533,10 +545,6 @@ body {
 .side-panel::-webkit-scrollbar-thumb {
     background: #38bdf8; 
     border-radius: 10px;
-}
-
-.map-shifted {
-    transform: translateX(15em); 
 }
 
 svg {
@@ -654,11 +662,7 @@ path:hover {
 .side-panel-open {
 	left: 0 !important;
 }
-
-.map-shifted {
-	transform: translateX(25%) !important; 
-}
-
+  
 .state-name {
 	font-size: 1.1rem;
 	word-wrap: break-word;
@@ -687,6 +691,21 @@ path:hover {
 path#HI:hover {
 	transform: none !important;
 }
+
+.more-agents-arrow {
+   position: absolute;
+   bottom: 1.5em;
+   right: 1.5em;
+   width: 3em;
+   height: 3em;
+   border-radius: 50%;
+   border: none;
+   background: #e6e6e6;
+   color: #000000;
+   display: none;
+   align-items: center;
+   justify-content: center;
+}
 </style>
 
 <script>
@@ -696,8 +715,13 @@ path#HI:hover {
     const agentListOutput = document.querySelector(".agent-list-output");
     const closeBtn = document.querySelector(".close-btn");
     const states = document.querySelectorAll("path");
-
-    let masterAgentsList = []; 
+	const moreAgentsArrow = document.querySelector(".more-agents-arrow");
+  
+    let masterAgentsList = [];
+  
+  	function isVerticallyOverflowed(element) {
+      return element.scrollHeight > element.offsetHeight;
+   	}
 
     window.addEventListener('message', (event) => {
         if (Array.isArray(event.data)) {
@@ -726,21 +750,35 @@ path#HI:hover {
                 }
                 return agent.state.split(',').map(s => s.trim()).includes(clickedStateID);
             });
-
+			
             renderAgents(filteredAgents);
         });
     });
 
     function renderAgents(agents) {
+      	/*
+      	if(agents.length >= 4){
+              moreAgentsArrow.style.display = "flex";
+            } else {
+              moreAgentsArrow.style.display = "none";
+        }
+        */
         if (agents.length > 0) {
             agentListOutput.innerHTML = agents.map(agent => `
                 <div class="agent-card" style="margin-bottom: 25px; border-bottom: 1px solid #0077B6; padding-bottom: 15px;">
-                    <h3>${agent.title_fld || ''} ${agent.agentLast || ''}</h3>
+                    <h3><a href="https://cbamoney.com/agent/${agent.slug}">${agent.title_fld || ''} ${agent.agentLast || ''}</a></h3>
                     <p><strong>Phone:</strong> <a href="tel:${agent.description_fld}" style="color: #FDEF38">${agent.description_fld || 'N/A'}</a></p>
                     <p><strong>Email:</strong> <a href="mailto:${agent.image_fld}" style="color: #FDEF38">${agent.image_fld || 'N/A'}</a></p>
                 </div>
             `).join('');
+          	/* Check if list element is overflowed, conditionally display scroll arrow */
+          	if(isVerticallyOverflowed(agentListOutput)){
+               moreAgentsArrow.style.display = "flex";
+            } else {
+              moreAgentsArrow.style.display = "none";
+            }
         } else {
+          	moreAgentsArrow.style.display = "none";
             agentListOutput.innerHTML = `
                 <div style="margin-top:20px;">
                     <p>No agents currently listed for this state.</p>
