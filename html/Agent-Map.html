@@ -472,7 +472,7 @@
         <button class="close-btn">
             <i class="fas fa-times"></i>
         </button>
-		<button class="more-agents-arrow">
+		<button onclick="scrollToBottom();" class="more-agents-arrow">
             <i class="fas fa-arrow-down"></i>
         </button>
     </div>
@@ -613,12 +613,14 @@ path:hover {
     align-items: center;
     justify-content: center;
     transition: 0.3s;
+	display: flex;
+    padding-top:2px;
 }
 
 .close-btn:hover {
     background-color: #ef4444; 
 	transform: rotate(90deg);
-  	padding-left: 1px;
+	cursor: pointer;
 }
 
 .side-panel h1, .side-panel h2 {
@@ -655,8 +657,14 @@ path:hover {
     scrollbar-width:none;
 }
 
-.agent-list-output::-webkit-scrollbar {
-    display:none;
+.agent-list-output::-webkit-scrollbar{
+    display:block;
+    width:3px;
+}
+
+.agent-list-output::-webkit-scrollbar-thumb{
+    background:#ccc;
+    border-radius: 7px;
 }
 
 .side-panel-open {
@@ -684,10 +692,6 @@ path:hover {
 	font-size: 0.8rem;
 }
 
-.close-btn:hover{
-	cursor: pointer;  
-}
-
 path#HI:hover {
 	transform: none !important;
 }
@@ -706,6 +710,11 @@ path#HI:hover {
    align-items: center;
    justify-content: center;
 }
+  
+.more-agents-arrow:hover{
+    cursor: pointer;
+  	opacity: 85%;
+}
 </style>
 
 <script>
@@ -722,6 +731,14 @@ path#HI:hover {
   	function isVerticallyOverflowed(element) {
       return element.scrollHeight > element.offsetHeight;
    	}
+  
+    function scrollToBottom(){
+        agentListOutput.scrollTop = agentListOutput.scrollHeight;
+    }
+  
+    function scrollToTop(){
+        agentListOutput.scrollTop = 0;
+    }
 
     window.addEventListener('message', (event) => {
         if (Array.isArray(event.data)) {
@@ -763,6 +780,7 @@ path#HI:hover {
               moreAgentsArrow.style.display = "none";
         }
         */
+      	scrollToTop();
         if (agents.length > 0) {
             agentListOutput.innerHTML = agents.map(agent => `
                 <div class="agent-card" style="margin-bottom: 25px; border-bottom: 1px solid #0077B6; padding-bottom: 15px;">
